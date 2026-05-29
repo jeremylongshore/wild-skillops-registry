@@ -1,6 +1,6 @@
 # wild-skillops-registry
 
-> Part of the **[wild ecosystem](https://github.com/jeremylongshore/wild-rails-ai-ops)** — 10 Ruby gems for running AI agents inside Rails apps under capability control.
+> Part of the **[wild ecosystem](https://github.com/intent-solutions-io/wild-rails-ai-ops)** — 10 Ruby gems for running AI agents inside Rails apps under capability control.
 
 Registry and discovery layer for skills and capabilities across the wild ecosystem.
 

@@ -16,9 +16,11 @@ name: 'MiniMax Code Review'
 # ADVISORY ONLY. Neither lane is a required check, neither appears in any other
 # job's `needs`, and neither blocks a merge. The deterministic gate is the CI
 # workflow (rspec on Ruby 3.2 and 3.3, plus rubocop). These lanes translate
-# REVIEW.md, the repository's reviewer law, into diff-scoped guidance. The
-# action fetches the PR diff via the API and never checks out or executes PR
-# code.
+# REVIEW.md, the repository's reviewer law, into diff-scoped guidance. Neither
+# job has a checkout step, so nothing from the PR head is cloned or run by this
+# workflow; the pinned action reads the diff through the GitHub API. That last
+# part is the action's behavior at the pinned SHA, which this workflow states
+# but cannot itself enforce.
 #
 # The action is our maintained fork (jeremylongshore/minimax-code-review),
 # SHA-pinned per supply-chain policy: it adds per-reviewer sticky comments
@@ -128,14 +130,22 @@ jobs:
             memory bounds in a long-lived process, so flag a removed check or a
             new unbounded collection. Note TagIndex and VersionManager both use
             Hash.new with a block, so READING an unknown key INSERTS it and query
-            paths grow the hash. (5) INDEX DESYNC: any path that changes tags or
-            removes a skill must update TagIndex in the same operation, and tag
-            changes use reindex, never a bare index which leaves old tags pointing
-            at the skill; Finder#find_by_tag uses filter_map, which hides a
+            paths grow the hash. (5) INDEX DESYNC: Registrar syncs TagIndex at
+            exactly two points, index on register and reindex on update, and it
+            has no removal path at all: TagIndex#remove_skill and Store#delete
+            both exist with no caller in lib, so a PR adding skill removal is
+            wiring that pair for the first time and must call remove_skill in the
+            same operation as the store delete. Any path that changes tags must
+            update the index in the same operation, and tag changes use reindex,
+            never a bare index which leaves old tags pointing at the skill; Finder#find_by_tag uses filter_map, which hides a
             dangling name rather than fixing it. (6) EXPORT LEAKAGE: JsonExporter
-            and MarkdownExporter serialize whatever to_h returns all the way down
-            and Owner#to_h already includes a human contact email, so flag any new
-            model field carrying a contact, credential, token, internal URL, or
+            serializes whatever to_h returns all the way down, so a new field on a
+            model to_h is published in the JSON export immediately with no
+            export-side change; MarkdownExporter never calls to_h and hand-renders
+            a fixed list of named fields, so it publishes a new field only when a
+            render line is added, though it does already print the owner contact
+            explicitly. Owner#to_h already includes a human contact email. Flag any
+            new model field carrying a contact, credential, token, internal URL, or
             operator note unless the PR says it is meant to be exported; never
             quote a suspected secret, name only its file, line, and fix. (7) ERROR
             TAXONOMY: library code raises the typed errors in errors.rb, so flag a

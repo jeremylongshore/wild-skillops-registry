@@ -12,6 +12,8 @@ Registry and discovery layer for skills and capabilities across the wild ecosyst
 
 ---
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U5S225PTME)
+
 ## What it does
 
 - **Register** skills/capabilities published by wild ecosystem repos

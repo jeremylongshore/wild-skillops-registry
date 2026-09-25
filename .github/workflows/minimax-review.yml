@@ -55,8 +55,8 @@ concurrency:
   cancel-in-progress: true
 
 # Build output and vendored bundles are excluded so review tokens go to
-# human-authored change only. Gemfile.lock is gitignored here (this is a library
-# gem), so it should never appear in a diff at all.
+# human-authored change only. Gemfile.lock is committed for CI reproducibility
+# but is generated, so it is excluded from review.
 env:
   EXCLUDES: 'Gemfile.lock,*.gem,vendor/**,pkg/**,coverage/**,doc/**,.yardoc/**'
 
@@ -156,7 +156,7 @@ jobs:
             enforces (layout, line length, frozen string literals, method length,
             naming), RSpec style, one idiomatic Ruby spelling over another, YARD
             docs, or speculative performance work on an in-memory hash of at most
-            1000 entries. Gemfile.lock, pkg, coverage, vendor/bundle and *.gem are
+            1000 entries. pkg, coverage, vendor/bundle and *.gem are
             gitignored build output; 000-docs is the canonical numbered doc set
             and historical docs need a dated correction, never a silent rewrite;
             planning/ is pre-implementation history and is not to be updated.
